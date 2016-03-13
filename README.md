@@ -10,9 +10,13 @@ El funcionamiento de la aplicación será el siguiente:
 <ul>
 <li> Recurso <em>/</em>, invocado mediante GET. Devolverá una página HTML con un formulario. En ese formulario se podrá escribir una url, que se enviará al servidor mediante POST. Además, esa misma página incluirá un listado de todas las URLs reales y acortadas que maneja la aplicación en este momento.
 
-<li> Recurso <em>/</em>, invocado mediante POST. Si el comando POST incluye una <b>qs</b> (query string) que corresponda con una url enviada desde el formulario, se devolverá una página HTML con la url original y la url acortada (ambas como enlaces pinchables), y se apuntará la correspondencia (ver más abajo).
 
+
+DUDA: Conflicto entre esta linea y la de abajo marcada tambien con "DUDA:"
+<li> Recurso <em>/</em>, invocado mediante POST. Si el comando POST incluye una <b>qs</b> (query string) que corresponda con una url enviada desde el formulario, se devolverá una página HTML con la url original y la url acortada (ambas como enlaces pinchables), y se apuntará la correspondencia (ver más abajo).
 Si el POST no trae una <b>qs</b> que se haya podido generar en el formulario, devolverá una página HTML con un mensaje de error.
+
+
 
 Si la URL especificada en el formulario comienza por <em>http://</em> o <em>https://</em>, se considerará que ésa es la URL a acortar. Si no es así, se le añadirá <em>http://</em> por delante, y se considerará que esa es la url a acortar. Por ejemplo, si en el formulario se escribe <em>http://gsyc.es</em>, la url a acortar será <em>http://gsyc.es</em>. Si se escribe <em>gsyc.es</em>, la URL a acortar será <em>http://gsyc.es</em>.
 
@@ -22,19 +26,19 @@ Así, por ejemplo, si se quiere acortar
 
 <i>http://docencia.etsit.urjc.es</i>
 
+
+
+DUDA:
 y la aplicación está en el puerto 1234 de la máquina <em>localhost</em>, se invocará (mediante POST) la URL
-
 <i>http://localhost:1234/</i>
-
 y en el cuerpo de esa petición HTTP irá la <b>qs</b>
-
 <i>url=http://docencia.etsit.urjc.es</i>
-
 si el campo donde el usuario puede escribir en el formulario tiene el nombre <em>URL</em>. Normalmente, esta invocación POST se realizará rellenando el formulario que ofrece la aplicación.
-
 Como respuesta, la aplicación devolverá (en el cuerpo de la respuesta HTTP) la URL acortada, por ejemplo
-
 <i>http://localhost:1234/3</i>
+
+
+
 
 Si a continuación se trata de acortar la URL
 
