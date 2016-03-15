@@ -48,12 +48,13 @@ class acortaURL (webAPP.webApp):
     urlCortas = {} # SeqN  URL
     urlLargas = LoadURLs(urlsLargas)
     urlCortas = LoadURLs(urlsCortas)
-    seqNumb = 0
+    seqNumb = len(urlLargas)
 
     def process(self, parsedRequest):
         metodo, recurso, cuerpo = parsedRequest # Get /... <html>...
         
         if metodo == 'GET':
+            # Recibido GET/
             if recurso == '/':
                 httpCode = '200 OK'
                 htmlBody =   '<html><body>'\
@@ -64,10 +65,12 @@ class acortaURL (webAPP.webApp):
                             +'<p1>En Cache: '+str(self.urlLargas)+'</p1>'\
                             +'</body><title>Acortador</title>'\
                             +'</html>'
+            # Recibido GET/favicon.ico
             elif recurso == '/favicon.ico':
                 print 'Recibida peticion "favicon"'
                 httpCode = '200 OK'
                 htmlBody=''
+            # Recibido GET/recurso(n)
             else:
                 n = int(recurso[1:]) # Quito '/' y convierto
                 try:
@@ -79,6 +82,7 @@ class acortaURL (webAPP.webApp):
                     httpCode = '404 Not Found'
                     htmlBody = decorateHTML('<h3>Recurso no disponible</h3>'\
                                             +'<p>Codigo de error: 404</p>')
+        # Recibido POST/
         elif metodo == 'POST' or metodo == 'PUT': 
             cuerpo=cuerpo.replace('%3A',':') # Recibo estos strings...
             cuerpo=cuerpo.replace('%2F','/')
@@ -100,10 +104,14 @@ class acortaURL (webAPP.webApp):
                     n = self.seqNumb
                     self.seqNumb = self.seqNumb + 1
                 httpCode = '200 OK' # Redirección temporizada
-                htmlBody = decorateHTML('<title>URL Corta</title>'\
-                                        +myURL() + '/' + str(n)\
+                htmlBody = decorateHTML('<title>URL Acortada</title>'\
+                                        +'<p1>URL Larga: <a href= '\
+                                        +cuerpo+'>' + cuerpo + '</a></p>'\
+                                        +'<p>URL Corta: <a href= '\
+                                        +myURL()+'/'+str(n)+'>'\
+                                        +myURL()+'/'+str(n) + '</a></p>'\
                                         +'<meta http-equiv="refresh"'\
-                                        +' content="5;url='\
+                                        +' content="10;url='\
                                         +myURL() + '" />'\
                                         )
             else: # POST: vía poster, solo para lectura de url acortadas
