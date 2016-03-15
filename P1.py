@@ -72,9 +72,9 @@ class acortaURL (webAPP.webApp):
                 htmlBody=''
             # Recibido GET/recurso(n)
             else:
-                n = int(recurso[1:]) # Quito '/' y convierto
+                urlCorta = myURL()+'/'+str(int(recurso[1:]))
                 try:
-                    urlDestino = self.urlCortas[n]
+                    urlDestino = self.urlCortas[urlCorta]
                     httpCode = '303 See Other\r\nLocation: ' + urlDestino
                     htmlBody = ''
                 except KeyError:
@@ -83,60 +83,50 @@ class acortaURL (webAPP.webApp):
                     htmlBody = decorateHTML('<h3>Recurso no disponible</h3>'\
                                             +'<p>Codigo de error: 404</p>')
         # Recibido POST/
-        elif metodo == 'POST' or metodo == 'PUT': 
+        elif metodo == 'POST' or metodo == 'PUT':
             cuerpo=cuerpo.replace('%3A',':') # Recibo estos strings...
             cuerpo=cuerpo.replace('%2F','/')
             if cuerpo[0:4] == 'url=': # POST de formulario o poster con "url..."
                 cuerpo = cuerpo[4:] # Quito el url=
-                if cuerpo[0:7] != 'http://': # http:// en caso de no haberlo
-                    cuerpo = 'http://' + cuerpo
+            if cuerpo[0:7] != 'http://': # http:// en caso de no haberlo
+                cuerpo = 'http://' + cuerpo
+                
+                
+            if cuerpo in self.urlCortas:
+                urllarga = self.urlCortas[cuerpo]
+                urlCorta = cuerpo
+                cuerpo = urllarga
+                httpCode = '200 OK' # Redirección temporizada
+                htmlBody = decorateHTML('<title>URL Acortada</title>'\
+                                        +'<h3>URL corta ya incluida:</h3>'\
+                                        +'<p1>URL Larga: <a href= '\
+                                        +cuerpo + '>' + cuerpo + '</a></p>'\
+                                        +'<p>URL Corta: <a href= '\
+                                        +urlCorta + '>'\
+                                        +urlCorta + '</a></p>')
+            else:
                 try: # Entrego la url corta al navegador
-                    n = self.urlLargas[cuerpo]
+                    urlCorta = self.urlLargas[cuerpo]
                     print 'URL encontrada, devolviendo almacenada'
                 except KeyError:
                     print 'URL no encontrada, creando...'
-                    self.urlLargas[cuerpo] = self.seqNumb # Larga, Corta
-                    self.urlCortas[self.seqNumb] = cuerpo
+                    urlCorta = myURL()+'/'+str(self.seqNumb)
+                    self.urlLargas[cuerpo] = urlCorta # Larga, Corta
+                    self.urlCortas[urlCorta] = cuerpo
                     # Almacenamiento en ficheros:
                     SaveURLs(self.urlLargas, self.urlsLargas)
                     SaveURLs(self.urlCortas, self.urlsCortas)
-                    
-                    n = self.seqNumb
                     self.seqNumb = self.seqNumb + 1
                 httpCode = '200 OK' # Redirección temporizada
                 htmlBody = decorateHTML('<title>URL Acortada</title>'\
                                         +'<p1>URL Larga: <a href= '\
-                                        +cuerpo+'>' + cuerpo + '</a></p>'\
+                                        +cuerpo + '>' + cuerpo + '</a></p>'\
                                         +'<p>URL Corta: <a href= '\
-                                        +myURL()+'/'+str(n)+'>'\
-                                        +myURL()+'/'+str(n) + '</a></p>'\
-                                        +'<meta http-equiv="refresh"'\
-                                        +' content="10;url='\
-                                        +myURL() + '" />'\
-                                        )
-            else: # POST: vía poster, solo para lectura de url acortadas
-                urlLargaBuscada = cuerpo
-                if urlLargaBuscada[0:7] != 'http://': # http:// en caso de no haberlo
-                    urlLargaBuscada = 'http://' + urlLargaBuscada
-                print 'Recibido POST con cuerpo sin "url="'
-                try:
-                    print 'Buscando: '+urlLargaBuscada
-                    SeqNBuscado = self.urlLargas[urlLargaBuscada]
-                    print 'Encontrado!!!'
-                    httpCode = '200 OK'
-                    htmlBody = decorateHTML( '<p><a href= ' + urlLargaBuscada \
-                                            +'> URL Original</a></p>' \
-                                            +'<p><a href= ' + myURL() \
-                                            + '/' + str(SeqNBuscado) \
-                                            +'> URL Acortada</a></p>')
-                except KeyError:
-                    print 'No encontrado'
-                    httpCode = '404 Not Found'
-                    htmlBody = decorateHTML('<h3>Recurso no disponible</h3>'\
-                                            +'<p>Codigo de error: 404</p>')
+                                        +urlCorta + '>'\
+                                        +urlCorta + '</a></p>')
         else:
             print 'Error: Recibido metodo desconocido'
-            
+
         return (httpCode,htmlBody)
 
 
@@ -146,27 +136,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-""" DUDAS:
-Lio con los POSTs; el del formulario, el de poster para añadir como si fuese
-un formulario y el de poster para leer solamente en caso de que ya exista.
-"""
-
-
-
-""" Código:
-with open('URLs.csv', 'wb') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',')
-    for url in urlLargas
-        writer.writerow( [ url, self.urlLargas[url] ] ) 
-        
-        
-        
-Test = LoadURLs(self.urlsLargas)
-
-"""
 
 
 
